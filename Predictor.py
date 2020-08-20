@@ -14,8 +14,31 @@ sns.set()
 
 def dataCleaner(fileName):
     dataset = pd.read_csv(fileName)
+    length = len(dataset)
     lastInfo = dataset.iloc[0, [5,3,4,7]].values
-    dataset = dataset.iloc[ :100, [2,3,4,5,7,10]]
+    """
+    if length >= 200:
+        dataset = dataset.iloc[ :200, [2,3,4,5,7,10]]
+    else:
+        dataset = dataset.iloc[ :length-2, [2,3,4,5,7,10]]
+    """
+    dataset = dataset.iloc[ :length-2, [2,3,4,5,7,10]]
+    length = len(dataset)
+    length -= 1
+    x = dataset.iloc[1:, [1,2,4]]
+    y = dataset.iloc[:length, [0,3,5]]
+    dataset = np.append(y, x, axis=1)
+    dataset = pd.DataFrame(dataset, columns = ['<FIRST>', '<CLOSE>', '<OPEN>(Yesterday close)', '<HIGH>', '<LOW>', '<VOL>'])
+    return dataset, lastInfo
+
+def dataCleaner2(fileName):
+    dataset = pd.read_csv(fileName)
+    length = len(dataset)
+    lastInfo = dataset.iloc[0, [5,3,4,7]].values
+    if length >= 200:
+        dataset = dataset.iloc[ :100, [2,3,4,5,7,10]]
+    else:
+        dataset = dataset.iloc[ :length-2, [2,3,4,5,7,10]]
     length = len(dataset)
     length -= 1
     x = dataset.iloc[1:, [1,2,4]]
@@ -45,11 +68,31 @@ def predictor(dataset, infoList):
     """
 
 
-def program(fileName, first_price):
+def run(fileName, first_price):
     dataset, infoList = dataCleaner(fileName)
     infoList = np.append(np.array([first_price]), infoList)
-    print(predictor(dataset, infoList))
+    return str(predictor(dataset, infoList)[0])
+
+def run2(fileName, first_price):
+    dataset, infoList = dataCleaner2(fileName)
+    infoList = np.append(np.array([first_price]), infoList)
+    return str(predictor(dataset, infoList)[0])
 
 
-
-
+def program():
+    source = pd.read_csv('Source.csv')
+    data = []
+    data2 = []
+    length = len(source)
+    for i in range(length):
+        data.append(run(source.iloc[i, 0]+'.csv', source.iloc[i, 1]))
+        data2.append(run(source.iloc[i, 0]+'.csv', source.iloc[i, 1]))
+    data = np.append(data, data2, axis = 0)
+    data = pd.DataFrame(data, columns = ['Final Price All', 'FInal Price (100)'])
+    data.to_csv('result\\result.csv')
+program()
+    
+    
+    
+    
+    

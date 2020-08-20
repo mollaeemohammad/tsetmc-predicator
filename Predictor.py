@@ -14,6 +14,7 @@ sns.set()
 
 def dataCleaner(fileName):
     dataset = pd.read_csv(fileName)
+    lastInfo = dataset.iloc[0, [5,3,4,7]].values
     dataset = dataset.iloc[ :100, [2,3,4,5,7,10]]
     length = len(dataset)
     length -= 1
@@ -21,12 +22,9 @@ def dataCleaner(fileName):
     y = dataset.iloc[:length, [0,3,5]]
     dataset = np.append(y, x, axis=1)
     dataset = pd.DataFrame(dataset, columns = ['<FIRST>', '<CLOSE>', '<OPEN>(Yesterday close)', '<HIGH>', '<LOW>', '<VOL>'])
-    return dataset
+    return dataset, lastInfo
 
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
-
 
 def predictor(dataset, infoList):
     length = len(dataset)
@@ -46,8 +44,12 @@ def predictor(dataset, infoList):
     plt.ylabel('Last Price')
     """
 
-#['<FIRST>', '<CLOSE>', '<OPEN>(Yesterday close)', '<HIGH>', '<LOW>', '<VOL>'])
-#print(predictor(dataCleaner('Zanj.csv'),[8660, 8786, 9010, 8748, 5379000]))
+
+def program(fileName, first_price):
+    dataset, infoList = dataCleaner(fileName)
+    infoList = np.append(np.array([first_price]), infoList)
+    print(predictor(dataset, infoList))
+
 
 
 
